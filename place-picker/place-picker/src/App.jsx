@@ -7,11 +7,18 @@ import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
 import logoImg from "./assets/logo.png";
 import { sortPlacesByDistance } from "./loc.js";
 
+const storedIDs = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+    const storedPlaces = storedIDs.map((id) =>
+      AVAILABLE_PLACES.find((place) => place.id === id)
+    );
+
 function App() {
-  const modal = useRef();
+  
   const selectedPlace = useRef();
+  const [modalIsOpen, setModalIsOpen] = useState(false);
   const [availablePlaces, setAvaialablePlaces] = useState([]);
-  const [pickedPlaces, setPickedPlaces] = useState([]);
+  const [pickedPlaces, setPickedPlaces] = useState(storedPlaces);
+
 
   useEffect(() => {
     //used in js to ask permission for location of user.
@@ -27,12 +34,12 @@ function App() {
   }, []);
 
   function handleStartRemovePlace(id) {
-    modal.current.open();
+    setModalIsOpen(true);
     selectedPlace.current = id;
   }
 
   function handleStopRemovePlace() {
-    modal.current.close();
+    setModalIsOpen(false);
   }
 
   function handleSelectPlace(id) {
@@ -43,26 +50,30 @@ function App() {
       const place = AVAILABLE_PLACES.find((place) => place.id === id);
       return [place, ...prevPickedPlaces];
     });
-    const storedIDs = JSON.parse(localStorage.getItem('selectedPlaces')) || [];
-    if(storedIDs.indexOf(id) === -1){
+    const storedIDs = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+    if (storedIDs.indexOf(id) === -1) {
       localStorage.setItem(
-        'selectedPlaces',
+        "selectedPlaces",
         JSON.stringify([id, ...storedIDs])
       );
     }
-    localStorage.setItem('selectedPlaces', JSON.stringify([...storedIDs]));
+    localStorage.setItem("selectedPlaces", JSON.stringify([...storedIDs]));
   }
 
   function handleRemovePlace() {
     setPickedPlaces((prevPickedPlaces) =>
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
-    modal.current.close();
+    setModalIsOpen(false);
+    const storedIDs = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+    localStorage.setItem(
+      'selectedPlaces',
+      JSON.stringify(storedIDs.filter((id) => id !== selectedPlace.current)));
   }
 
   return (
     <>
-      <Modal ref={modal}>
+      <Modal open={modalIsOpen}>
         <DeleteConfirmation
           onCancel={handleStopRemovePlace}
           onConfirm={handleRemovePlace}
@@ -83,7 +94,6 @@ function App() {
           fallbackText={"Select the places you would like to visit below."}
           places={pickedPlaces}
           onSelectPlace={handleStartRemovePlace}
-
         />
         <Places
           title="Available Places"

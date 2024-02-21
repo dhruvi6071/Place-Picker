@@ -13,6 +13,8 @@ export default function DeleteConfirmation({ onConfirm, onCancel }) {
       clearTimeout(timer);
      }
   }, [onConfirm]);
+
+  // when we use this approach then in app.jsx handleremove function will be created again and again every time function is run therefore try to use new hook "useCallback".
  
 
   return (

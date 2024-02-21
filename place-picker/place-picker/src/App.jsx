@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 
 import Places from "./components/Places.jsx";
 import { AVAILABLE_PLACES } from "./data.js";
@@ -8,17 +8,15 @@ import logoImg from "./assets/logo.png";
 import { sortPlacesByDistance } from "./loc.js";
 
 const storedIDs = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
-    const storedPlaces = storedIDs.map((id) =>
-      AVAILABLE_PLACES.find((place) => place.id === id)
-    );
+const storedPlaces = storedIDs.map((id) =>
+  AVAILABLE_PLACES.find((place) => place.id === id)
+);
 
 function App() {
-  
   const selectedPlace = useRef();
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [availablePlaces, setAvaialablePlaces] = useState([]);
   const [pickedPlaces, setPickedPlaces] = useState(storedPlaces);
-
 
   useEffect(() => {
     //used in js to ask permission for location of user.
@@ -60,16 +58,17 @@ function App() {
     localStorage.setItem("selectedPlaces", JSON.stringify([...storedIDs]));
   }
 
-  function handleRemovePlace() {
+  const handleRemovePlace = useCallback(function handleRemovePlace() {
     setPickedPlaces((prevPickedPlaces) =>
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
     // setModalIsOpen(false);
     const storedIDs = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
     localStorage.setItem(
-      'selectedPlaces',
-      JSON.stringify(storedIDs.filter((id) => id !== selectedPlace.current)));
-  }
+      "selectedPlaces",
+      JSON.stringify(storedIDs.filter((id) => id !== selectedPlace.current))
+    );
+  }, []);
 
   return (
     <>
